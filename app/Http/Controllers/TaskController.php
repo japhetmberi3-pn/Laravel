@@ -7,16 +7,10 @@ use App\Models\Task;
 
 class TaskController extends Controller
 {
-    public function index()
+ public function index(Request $request)
     {
-        $tasks = Task::orderBy('created_at','desc')->get();
+        $tasks = Task::all();
         return view('tasks.index', compact('tasks'));
-    }
-
-    public function create()
-    {
-        $statuses = Task::statuses();
-        return view('tasks.create', compact('statuses'));
     }
 
     public function store(Request $request)
@@ -24,48 +18,27 @@ class TaskController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:' . implode(',', Task::statuses()),
+            'status' => 'nullable|in:pending,in_progress,done',
             'due_date' => 'nullable|date',
         ]);
 
-        Task::create($data);
+        $task = Task::create(array_merge($data, ['user_id' => $request->user()->id]));
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($task, 201);
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Tâche créée.');
     }
 
-    public function show($id)
+    public function destroy(Request $request, Task $task)
     {
-        $task = Task::findOrFail($id);
-        return view('tasks.show', compact('task'));
-    }
-
-    public function edit($id)
-    {
-        $task = Task::findOrFail($id);
-        $statuses = Task::statuses();
-        return view('tasks.edit', compact('task','statuses'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $task = Task::findOrFail($id);
-
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:' . implode(',', Task::statuses()),
-            'due_date' => 'nullable|date',
-        ]);
-
-        $task->update($data);
-
-        return redirect()->route('tasks.index')->with('success', 'Tâche mise à jour.');
-    }
-
-    public function destroy($id)
-    {
-        $task = Task::findOrFail($id);
+        abort_if($task->user_id !== $request->user()->id, 403);
         $task->delete();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['deleted' => true]);
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Tâche supprimée.');
     }
@@ -76,8 +49,14 @@ class TaskController extends Controller
 
         $data = $request->validate(['status' => 'required|in:pending,in_progress,done']);
         $task->update($data);
+
         return response()->json($task);
     }
-    
-}
+   
+    public function tasks()
+    {
+        return $this->hasMany(\App\Models\Task::class);
+    }
+
+}   
 
