@@ -26,6 +26,13 @@ Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update
 Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
 Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
 
-// ...existing code...
 
 Route::resource('tasks', TaskController::class);
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+});

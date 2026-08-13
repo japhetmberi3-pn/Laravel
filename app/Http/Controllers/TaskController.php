@@ -69,4 +69,15 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')->with('success', 'Tâche supprimée.');
     }
+
+    public function updateStatus(Request $request, Task $task)
+    {
+        abort_if($task->user_id !== $request->user()->id, 403);
+
+        $data = $request->validate(['status' => 'required|in:pending,in_progress,done']);
+        $task->update($data);
+        return response()->json($task);
+    }
+    
 }
+
