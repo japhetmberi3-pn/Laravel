@@ -10,11 +10,19 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+
+            // Utilisateur auquel appartient la tâche
+            $table->foreignId('user_id')
+                  ->constrained()
+                  ->cascadeOnDelete();
+
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['pending','in_progress','done'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'done'])
+                  ->default('pending');
             $table->timestamp('due_date')->nullable();
-            $table->timestamps(); // created_at et updated_at
+
+            $table->timestamps();
         });
     }
 
