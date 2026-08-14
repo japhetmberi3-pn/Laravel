@@ -10,6 +10,7 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'title',
         'description',
         'status',
@@ -31,5 +32,10 @@ class Task extends Model
             self::STATUS_IN_PROGRESS,
             self::STATUS_DONE,
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
