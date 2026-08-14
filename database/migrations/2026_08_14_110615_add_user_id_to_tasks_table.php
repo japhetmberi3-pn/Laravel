@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
+            // si FK cause problème, garder unsignedBigInteger puis ajouter FK plus tard
             $table->unsignedBigInteger('user_id')->nullable()->after('id');
         });
     }
