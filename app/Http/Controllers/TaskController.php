@@ -62,5 +62,15 @@ class TaskController extends Controller
         return $this->hasMany(\App\Models\Task::class);
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+
+        $tasks = Task::where('title', 'like', "%$query%")
+            ->orWhere('description', 'like', "%$query%")
+            ->get();
+
+        return view('tasks.index', compact('tasks'));
+    }
 }   
 

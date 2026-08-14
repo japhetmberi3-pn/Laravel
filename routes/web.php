@@ -36,3 +36,5 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
+
+Route::get('/tasks/search', [TaskController::class, 'search'])->name('tasks.search');
